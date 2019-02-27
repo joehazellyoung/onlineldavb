@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, urllib2, re, string, time, threading
+# import sys, urllib2, re, string, time, threading
+import sys, urllib.request, urllib.error, re, string, time, threading
 
 def get_random_wikipedia_article():
     """
@@ -31,9 +32,10 @@ def get_random_wikipedia_article():
         articletitle = None
         failed = False
         try:
-            req = urllib2.Request('http://en.wikipedia.org/wiki/Special:Random',
-                                  None, { 'User-Agent' : 'x'})
-            f = urllib2.urlopen(req)
+            # req = urllib2.Request('http://en.wikipedia.org/wiki/Special:Random', None, { 'User-Agent' : 'x'})
+            req = urllib.request.Request('http://en.wikipedia.org/wiki/Special:Random', None, { 'User-Agent' : 'x'})
+            #f = urllib2.urlopen(req)
+            f = urllib.request.urlopen(req)
             while not articletitle:
                 line = f.readline()
                 result = re.search(r'title="Edit this page" href="/w/index.php\?title=(.*)\&amp;action=edit"/\>', line)
@@ -43,17 +45,19 @@ def get_random_wikipedia_article():
                 elif (len(line) < 1):
                     sys.exit(1)
 
-            req = urllib2.Request('http://en.wikipedia.org/w/index.php?title=Special:Export/%s&action=submit' \
-                                      % (articletitle),
-                                  None, { 'User-Agent' : 'x'})
-            f = urllib2.urlopen(req)
+            # req = urllib2.Request('http://en.wikipedia.org/w/index.php?title=Special:Export/%s&action=submit' % (articletitle),None, { 'User-Agent' : 'x'})
+            req = urllib.request.Request(f'http://en.wikipedia.org/w/index.php?title=Special:Export/{articletitle}&action=submit',None, { 'User-Agent' : 'x'})
+            # f = urllib2.urlopen(req)
+            f = urllib.request.urlopen(req)
             all = f.read()
-        except (urllib2.HTTPError, urllib2.URLError):
-            print 'oops. there was a failure downloading %s. retrying...' \
-                % articletitle
+        # except (urllib2.HTTPError, urllib2.URLError):
+        except (urllib.error.HTTPError, urllib.error.URLError):
+            # print 'oops. there was a failure downloading %s. retrying...' \
+            print(f'oops. there was a failure downloading {articletitle}. retrying...')
             failed = True
             continue
-        print 'downloaded %s. parsing...' % articletitle
+        # print 'downloaded %s. parsing...' % articletitle
+        print(f'downloaded {articletitle}. parsing...')
 
         try:
             all = re.search(r'<text.*?>(.*)</text', all, flags=re.DOTALL).group(1)
@@ -72,8 +76,8 @@ def get_random_wikipedia_article():
             all = re.sub(r'\&lt;.*?&gt;', '', all)
         except:
             # Something went wrong, try again. (This is bad coding practice.)
-            print 'oops. there was a failure parsing %s. retrying...' \
-                % articletitle
+            # print 'oops. there was a failure parsing %s. retrying...' % articletitle
+            print(f'oops. there was a failure parsing {articletitle}. retrying...')
             failed = True
             continue
 
@@ -102,7 +106,8 @@ def get_random_wikipedia_articles(n):
     WikiThread.articlenames = list()
     wtlist = list()
     for i in range(0, n, maxthreads):
-        print 'downloaded %d/%d articles...' % (i, n)
+        # print 'downloaded %d/%d articles...' % (i, n)
+        print(f'downloaded {i}/{n} articles...')
         for j in range(i, min(i+maxthreads, n)):
             wtlist.append(WikiThread())
             wtlist[len(wtlist)-1].start()
@@ -115,7 +120,9 @@ if __name__ == '__main__':
 
     (articles, articlenames) = get_random_wikipedia_articles(1)
     for i in range(0, len(articles)):
-        print articlenames[i]
+        # print articlenames[i]
+        print(articlenames[i])
 
     t1 = time.time()
-    print 'took %f' % (t1 - t0)
+    # print 'took %f' % (t1 - t0)
+    print(f'took {(t1 - t0)}')

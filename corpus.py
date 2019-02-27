@@ -1,5 +1,5 @@
 import os
-from itertools import izip
+# from itertools import izip - wasn't being used so have commented out
 import re
 # read and organize data
 
@@ -21,9 +21,10 @@ class corpus:
 
     def read_data(self, filename):
         if not os.path.exists(filename):
-            print 'no data file, please check it'
+            # print 'no data file, please check it'
+            print('no data file, please check it')
             return
-        print 'reading data from %s.' % filename
+        print(f'reading data from {filename}')
 
         for line in file(filename): 
             ss = line.strip().split()
@@ -48,7 +49,8 @@ class corpus:
             if (len(self.docs) >= 10000):
                 break
         self.num_docs = len(self.docs)
-        print "finished reading %d docs." % self.num_docs
+        # print "finished reading %d docs." % self.num_docs
+        print(f"finished reading {self.num_docs} docs.")
 
 # def read_data(filename):
 #     c = corpus()
