@@ -22,7 +22,7 @@ def get_random_wikipedia_article():
     """
     Downloads a randomly selected Wikipedia article (via
     http://en.wikipedia.org/wiki/Special:Random) and strips out (most
-    of) the formatting, links, etc. 
+    of) the formatting, links, etc.
 
     This function is a bit simpler and less robust than the code that
     was used for the experiments in "Online VB for LDA."
@@ -37,7 +37,7 @@ def get_random_wikipedia_article():
             #f = urllib2.urlopen(req)
             f = urllib.request.urlopen(req)
             while not articletitle:
-                line = f.readline()
+                line = str(f.fp.raw.readline())
                 result = re.search(r'title="Edit this page" href="/w/index.php\?title=(.*)\&amp;action=edit"/\>', line)
                 if (result):
                     articletitle = result.group(1)
@@ -49,7 +49,7 @@ def get_random_wikipedia_article():
             req = urllib.request.Request(f'http://en.wikipedia.org/w/index.php?title=Special:Export/{articletitle}&action=submit',None, { 'User-Agent' : 'x'})
             # f = urllib2.urlopen(req)
             f = urllib.request.urlopen(req)
-            all = f.read()
+            all = str(f.read())
         # except (urllib2.HTTPError, urllib2.URLError):
         except (urllib.error.HTTPError, urllib.error.URLError):
             # print 'oops. there was a failure downloading %s. retrying...' \
@@ -60,26 +60,26 @@ def get_random_wikipedia_article():
         print(f'downloaded {articletitle}. parsing...')
 
         try:
-            all = re.search(r'<text.*?>(.*)</text', all, flags=re.DOTALL).group(1)
-            all = re.sub(r'\n', ' ', all)
-            all = re.sub(r'\{\{.*?\}\}', r'', all)
-            all = re.sub(r'\[\[Category:.*', '', all)
-            all = re.sub(r'==\s*[Ss]ource\s*==.*', '', all)
-            all = re.sub(r'==\s*[Rr]eferences\s*==.*', '', all)
-            all = re.sub(r'==\s*[Ee]xternal [Ll]inks\s*==.*', '', all)
-            all = re.sub(r'==\s*[Ee]xternal [Ll]inks and [Rr]eferences==\s*', '', all)
-            all = re.sub(r'==\s*[Ss]ee [Aa]lso\s*==.*', '', all)
-            all = re.sub(r'http://[^\s]*', '', all)
-            all = re.sub(r'\[\[Image:.*?\]\]', '', all)
-            all = re.sub(r'Image:.*?\|', '', all)
-            all = re.sub(r'\[\[.*?\|*([^\|]*?)\]\]', r'\1', all)
-            all = re.sub(r'\&lt;.*?&gt;', '', all)
+           all = re.search(r'<text.*?>(.*)</text', all, flags=re.DOTALL).group(1)
+           all = re.sub(r'\n', ' ', all)
+           all = re.sub(r'\{\{.*?\}\}', r'', all)
+           all = re.sub(r'\[\[Category:.*', '', all)
+           all = re.sub(r'==\s*[Ss]ource\s*==.*', '', all)
+           all = re.sub(r'==\s*[Rr]eferences\s*==.*', '', all)
+           all = re.sub(r'==\s*[Ee]xternal [Ll]inks\s*==.*', '', all)
+           all = re.sub(r'==\s*[Ee]xternal [Ll]inks and [Rr]eferences==\s*', '', all)
+           all = re.sub(r'==\s*[Ss]ee [Aa]lso\s*==.*', '', all)
+           all = re.sub(r'http://[^\s]*', '', all)
+           all = re.sub(r'\[\[Image:.*?\]\]', '', all)
+           all = re.sub(r'Image:.*?\|', '', all)
+           all = re.sub(r'\[\[.*?\|*([^\|]*?)\]\]', r'\1', all)
+           all = re.sub(r'\&lt;.*?&gt;', '', all)
         except:
-            # Something went wrong, try again. (This is bad coding practice.)
-            # print 'oops. there was a failure parsing %s. retrying...' % articletitle
-            print(f'oops. there was a failure parsing {articletitle}. retrying...')
-            failed = True
-            continue
+           # Something went wrong, try again. (This is bad coding practice.)
+           # print 'oops. there was a failure parsing %s. retrying...' % articletitle
+           print(f'oops. there was a failure parsing {articletitle}. retrying...')
+           failed = True
+           continue
 
     return(all, articletitle)
 

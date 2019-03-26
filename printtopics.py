@@ -16,7 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, re, random, math, urllib2, time, cPickle
+import sys
+import os
+import re
+import random
+import math
+# import urllib2
+from urllib.request import urlopen, Request
+import time
+import _pickle as pickle
 import numpy
 
 import onlineldavb
@@ -27,7 +35,10 @@ def main():
     (expected) most prominent words in the topics, the second column
     gives their (expected) relative prominence.
     """
-    vocab = str.split(file(sys.argv[1]).read())
+
+    with open(sys.argv[1]) as f:
+        vocab = f.read().split()
+
     testlambda = numpy.loadtxt(sys.argv[2])
 
     for k in range(0, len(testlambda)):
@@ -35,12 +46,13 @@ def main():
         lambdak = lambdak / sum(lambdak)
         temp = zip(lambdak, range(0, len(lambdak)))
         temp = sorted(temp, key = lambda x: x[0], reverse=True)
+
         print(f'topic {k}')
+
         # feel free to change the "53" here to whatever fits your screen nicely.
         for i in range(0, 53):
-            # print '%20s  \t---\t  %.4f' % (vocab[temp[i][1]], temp[i][0])
-            print(f'{vocab[temp[i][1]]}\t---\ttemp[i][0]')
-        print()
+            print(f'{vocab[temp[i][1]]}\t---\t{temp[i][0]}')
+        print
 
 if __name__ == '__main__':
     main()

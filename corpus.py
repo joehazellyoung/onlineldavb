@@ -1,5 +1,4 @@
 import os
-# from itertools import izip - wasn't being used so have commented out
 import re
 # read and organize data
 
@@ -21,36 +20,38 @@ class corpus:
 
     def read_data(self, filename):
         if not os.path.exists(filename):
-            # print 'no data file, please check it'
             print('no data file, please check it')
             return
-        print(f'reading data from {filename}')
+        print(f'reading data from {filename}.')
 
-        for line in file(filename): 
-            ss = line.strip().split()
-            if len(ss) == 0: continue
-            doc = document()
-            doc.length = int(ss[0])
+        with open(filename) as f:
+            for line in f:
+                ss = line.strip().split()
+                if len(ss) == 0: continue
+                doc = document()
+                doc.length = int(ss[0])
 
-            doc.words = [0 for w in range(doc.length)]
-            doc.counts = [0 for w in range(doc.length)]
-            for w, pair in enumerate(re.finditer(r"(\d+):(\d+)", line)):
-                doc.words[w] = int(pair.group(1))
-                doc.counts[w] = int(pair.group(2))
+                doc.words = [0 for w in range(doc.length)]
+                doc.counts = [0 for w in range(doc.length)]
+                for w, pair in enumerate(re.finditer(r"(\d+):(\d+)", line)):
+                    doc.words[w] = int(pair.group(1))
+                    doc.counts[w] = int(pair.group(2))
 
-            doc.total = sum(doc.counts) 
-            self.docs.append(doc)
+                doc.total = sum(doc.counts)
+                self.docs.append(doc)
 
-            if doc.length > 0:
-                max_word = max(doc.words)
-                if max_word >= self.size_vocab:
-                    self.size_vocab = max_word + 1
+                if doc.length > 0:
+                    max_word = max(doc.words)
+                    if max_word >= self.size_vocab:
+                        self.size_vocab = max_word + 1
 
-            if (len(self.docs) >= 10000):
-                break
+                if (len(self.docs) >= 10000):
+                    break
+            # end for
+        # end with
+
         self.num_docs = len(self.docs)
-        # print "finished reading %d docs." % self.num_docs
-        print(f"finished reading {self.num_docs} docs.")
+        print("finished reading {self.num_docs} docs.")
 
 # def read_data(filename):
 #     c = corpus()

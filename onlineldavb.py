@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, re, time, string
+import re
+import sys
+
 import numpy as n
 from scipy.special import gammaln, psi
 
@@ -70,7 +72,7 @@ def parse_doc_list(docs, vocab):
         docs[d] = re.sub(r'-', ' ', docs[d])
         docs[d] = re.sub(r'[^a-z ]', '', docs[d])
         docs[d] = re.sub(r' +', ' ', docs[d])
-        words = string.split(docs[d])
+        words = docs[d].split()
         ddict = dict()
         for word in words:
             if (word in vocab):
@@ -141,7 +143,7 @@ class OnlineLDA:
         it = 0
         meanchange = 0
         for d in range(0, batchD):
-            print(sum(wordcts[d]))
+            print(f'{sum(wordcts[d])}')
             # These are mostly just shorthand (but might help cache locality)
             ids = wordids[d]
             cts = wordcts[d]
@@ -160,7 +162,6 @@ class OnlineLDA:
                 # the update for gamma gives this update. Cf. Lee&Seung 2001.
                 gammad = self._alpha + expElogthetad * \
                     n.dot(cts / phinorm, expElogbetad.T)
-                # print gammad[:, n.newaxis]
                 print(f'{gammad[:, n.newaxis]}')
                 Elogthetad = dirichlet_expectation(gammad)
                 expElogthetad = n.exp(Elogthetad)
@@ -463,7 +464,7 @@ def main():
     model = OnlineLDA(vocab, K, 100000,
                       0.1, 0.01, 1, 0.75)
     for i in range(1000):
-        print(i)
+        print(f'{i}')
         wordids = [d.words for d in docs.docs[(i*S):((i+1)*S)]]
         wordcts = [d.counts for d in docs.docs[(i*S):((i+1)*S)]]
         model.update_lambda(wordids, wordcts)
