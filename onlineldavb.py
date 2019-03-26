@@ -150,7 +150,7 @@ class OnlineLDA:
             gammad = gamma[d, :]
             Elogthetad = Elogtheta[d, :]
             expElogthetad = expElogtheta[d, :]
-            expElogbetad = self._expElogbeta[:, ids]
+            expElogbetad = self._expElogbeta[:, list(ids)]
             # The optimal phi_{dwk} is proportional to 
             # expElogthetad_k * expElogbetad_w. phinorm is the normalizer.
             phinorm = n.dot(expElogthetad, expElogbetad) + 1e-100
@@ -160,8 +160,7 @@ class OnlineLDA:
                 # We represent phi implicitly to save memory and time.
                 # Substituting the value of the optimal phi back into
                 # the update for gamma gives this update. Cf. Lee&Seung 2001.
-                gammad = self._alpha + expElogthetad * \
-                    n.dot(cts / phinorm, expElogbetad.T)
+                gammad = self._alpha + expElogthetad * n.dot(list(cts) / phinorm, expElogbetad.T)
                 print(f'{gammad[:, n.newaxis]}')
                 Elogthetad = dirichlet_expectation(gammad)
                 expElogthetad = n.exp(Elogthetad)
@@ -173,7 +172,9 @@ class OnlineLDA:
             gamma[d, :] = gammad
             # Contribution of document d to the expected sufficient
             # statistics for the M step.
-            sstats[:, ids] += n.outer(expElogthetad.T, cts/phinorm)
+
+            sstats[:, list(ids)] += n.outer(expElogthetad.T, n.array(list(cts)).reshape(len(phinorm),)/phinorm)
+            # sstats[:, ids] += n.outer(expElogthetad.T, cts/phinorm)
 
         # This step finishes computing the sufficient statistics for the
         # M step, so that
@@ -420,10 +421,11 @@ class OnlineLDA:
         for d in range(0, batchD):
             gammad = gamma[d, :]
             ids = wordids[d]
-            cts = n.array(wordcts[d])
+            cts = n.array(list(wordcts[d]))
             phinorm = n.zeros(len(ids))
             for i in range(0, len(ids)):
-                temp = Elogtheta[d, :] + self._Elogbeta[:, ids[i]]
+                temp = Elogtheta[d, :] + self._Elogbeta[:, list(ids)[i]]
+                #temp = Elogtheta[d, :] + self._Elogbeta[:, ids[i]]
                 tmax = max(temp)
                 phinorm[i] = n.log(sum(n.exp(temp - tmax))) + tmax
             score += n.sum(cts * phinorm)
